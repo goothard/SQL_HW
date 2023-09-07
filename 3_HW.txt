@@ -1,0 +1,222 @@
+/* 
+    Задание 1. Вывести список (или все столбцы или ФИО) 
+    сотрудников упорядоченных по фамилии (таблица сотрудников persons)
+*/  
+select last_name  as "Фамилия",
+       first_name as "Имя",
+       patronymic as "Отчество"
+  from persons
+ order by last_name;
+
+/* 
+    Задание 2. Вывести список (все столбцы) сотрудников упорядоченных по дате, 
+    сначала молодые  (таблица сотрудников persons)
+*/  
+select *
+  from persons
+ order by birthdate DESC;
+	
+-- Задание 3. Вывести список филиалов (таблица филиалов filial)
+select *
+  from filial;
+	
+-- Задание 4. Вывести список блюд в столовой, цена которых больше 80 рублей (таблица блюд canteendishes)
+select *
+  from canteendishes
+ where price >80;
+
+-- Задание 1. Вывести список сотрудников работающих, в филиале 1 или 2 через IN (таблица сотрудников persons).
+select *
+  from persons
+ where filial_id in (1, 2)
+ order by filial_id;
+
+-- Задание 2. Вывести список сотрудников, фамилия которых начинается на букву В. (таблица сотрудников persons).
+select *
+  from persons
+ where last_name like 'В%'
+
+/* 
+   Задание 3. Вывести список блюд столовой, цена которых в диапазоне от 70 до 80 рублей.
+   Результат упорядочить по цене, по убыванию. (таблица блюд canteendishes)
+*/
+select *
+  from canteendishes
+ where price between 70 and 80
+ order by price desc;
+
+/* 
+   Задание 4. Вывести список блюд столовой, которые готовятся в собственной столовой организации, а не закупаются. 
+   У таких строчек указан повар (в столбце cook_id присутствует идентификатор повара).
+   Результат отсортировать по наименованию блюда
+*/
+select *
+  from canteendishes
+ where cook_id is not null
+ order by dish_name;
+
+
+/* 
+     Задание 1. Вывести список сотрудников, работающих в первом филиале, 
+     родившихся не раньше 01.01.1980. 
+
+*/   
+  select *
+    from persons
+   where filial_id= 1
+     and birthdate >= to_date ('01 Jan 1980', 'DD Mon YYYY')
+
+
+
+/*   Задание 2. Вывести список сотрудников которые родились в мае 
+    (не важно какой год и дата, условие месяц май), указать их возраст и отсортировать по дате.
+*/
+select last_name,
+	   first_name,
+	   birthdate,
+       extract(month from birthdate) as "май",
+       age(now(), birthdate)
+  from persons
+ where extract(month from birthdate)= 5
+ order by birthdate;
+
+/* 
+   Задание 1. Вывести список сотрудников (фамилия, имя) из таблицы Persons и
+   Названия департаментов в которых они работают (таблицы Departament).
+*/
+ select p.person_id ,
+        p.last_name ,
+        p.first_name ,
+        d.id ,
+        d.departament_name
+   from departament as d
+   join persons as p
+     on d.id = p.departament_id;
+   
+/*
+   Задание 2. Вывести список блюд в столовой (таблица CanteenDishes) 
+   с фамилией и именем поваров которые их готовят. 
+   Список сотрудников в таблице Persons.
+*/
+select p.last_name ,
+       p.first_name ,
+       c.dish_name
+  from canteendishes as c
+  join persons as p
+    on p.person_id = c.cook_id;
+
+   /*  
+   Задание 3. Вывести ФИО сотрудников работающих в Москве и их автомобили.
+   В селекте должны быть поля ФИО, название филиала, номер 
+   автомобиля сотрудника и название автомобиля. (таблицы Persons, Filial, PersonCars).
+*/
+select p.person_id , 
+       p.last_name ,
+       pc.person_id ,
+       pc.car_number ,
+       pc.car_name ,
+       f.id ,
+       f.filial_name
+  from persons as p
+  join personcars as pc 
+    on p.person_id = pc.person_id 
+  join filial as f
+    on f.id = p.filial_id
+ where f.id = 1;
+
+
+-- Модуль 5
+
+/*
+  Задание 1. Вывести фамилию и имя сотрудников - поваров, сотрудники не должны повторяться 
+  (таблицы Persons, CanteenDishes).
+*/
+select distinct p.last_name ,
+       p.first_name
+  from persons as p
+  join canteendishes as c
+    on c.cook_id = p.person_id;
+
+/*
+  Задание 2. Вывести фамилию и имя  сотрудников не имеющих автомобили, 
+  сотрудники не должны повторяться  (таблицы Persons, PersonCars).
+*/
+select distinct p.last_name ,
+       p.first_name
+  from personcars as pc
+  full join persons as p
+    on pc.person_id = p.person_id
+ where car_name is null;
+
+/*
+   Задание 3. Вывести список сотрудников которые ездят на автомобиле
+   марки ‘vesta’. В отчете отобразить:
+   Фамилию, имя, название отдела, название филиала, имя автомобиля.
+   (таблицы Persons, PersonCars, Departament, Filial)
+*/
+select distinct p.last_name ,
+       p.first_name ,
+       d.departament_name ,
+       f.filial_name ,
+       pc.car_name 
+  from persons as p
+  join personcars as pc 
+    on p.person_id = pc.person_id
+  join departament as d
+    on d.id = p.departament_id
+  join filial as f
+    on f.id = p.filial_id
+ where pc.car_name  Ilike '%vesta%';
+                
+
+-- 6 модуль
+/*  
+ 
+  Задание 1. Написать запрос, выводящий таблицу из двух столбцов:
+  наименования филиалов и количества работающих
+  в них сотрудников и отсортировать по количеству
+  от большего к меньшему  (таблицы Persons, Filial).
+  
+*/
+select f.filial_name ,
+       count (p.person_id) count_persons
+  from persons p
+  full join filial f
+    on p.filial_id = f.id
+ group by f.filial_name
+ order by count_persons DESC
+
+ 
+ Задание 3. Вывести список отделов (в одном столбце) и количество денежных средств 
+ (сумма в рублях по каждому выделенному отделу в другом столбце),
+ перечисленных на зарплату сотрудникам выводимого 
+ отдела за март месяц за 2022 год (таблицы Departament, Persons, PersonPayments).
+
+*/
+select d.departament_name ,
+       sum (pp.salary) salary 
+  from persons p
+  join departament d
+    on p.departament_id = d.id
+  join personpayments pp 
+    on pp.person_id = p.person_id
+ where salary_period = to_date ('2022-03','yyyy-mm') 
+ group by p.person_id, d.departament_name;
+
+ 
+/*
+ 
+ Задание 4. Вывести список блюд столовой и количество их продаж за апрель  2022 год. 
+ Результат отсортировать по убыванию. 
+ Сначала отобразить самые продаваемые блюда (таблицы CanteenDishes, PersonCanteenOrder).
+
+*/
+select c.dish_name ,
+       p.order_date ,
+       sum (p.dish_id) dish_id 
+  from canteendishes c
+  join personcanteenorder p 
+    on p.dish_id = c.dish_id
+ where p.order_date = to_date('2022-04','yyyy-mm') 
+ group by c.dish_name , p.order_date  
+ order by dish_id desc;
